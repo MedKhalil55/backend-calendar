@@ -1,6 +1,8 @@
 package com.talys.calendar.models;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -18,6 +20,9 @@ public class EventDto {
 	private String description;
 	@NotBlank(message = "Category is required")
 	private String category;
+    private Set<Integer> userIds;
+    private Integer responsibleUserId;
+    private Boolean isCompleted = false;
 	public String getTitle() {
 		return title;
 	}
@@ -53,6 +58,24 @@ public class EventDto {
 	}
 	public void setId(Integer id) {
 		this.id = id;
+	}
+	public Set<Integer> getUserIds() {
+		return userIds;
+	}
+	public void setUserIds(Set<Integer> userIds) {
+		this.userIds = userIds;
+	}
+	public Integer getResponsibleUserId() {
+		return responsibleUserId;
+	}
+	public void setResponsibleUserId(Integer responsibleUserId) {
+		this.responsibleUserId = responsibleUserId;
+	}
+	public Boolean getIsCompleted() {
+		return isCompleted;
+	}
+	public void setIsCompleted(Boolean isCompleted) {
+		this.isCompleted = isCompleted;
 	}
 	
 	

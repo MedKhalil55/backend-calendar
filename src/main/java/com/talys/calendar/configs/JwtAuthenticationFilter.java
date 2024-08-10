@@ -22,55 +22,45 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class JwtAuthenticationFilter extends OncePerRequestFilter{
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	
 	@Autowired
-	private  JwtService jwtService;
+	private final JwtService jwtService;
 	
-	
-	private  UserDetailsService userDetailsService;
-
+	@Autowired
+	private final UserDetailsService userDetailsService;
 
 	@Override
 	protected void doFilterInternal(
 			@NonNull HttpServletRequest request,
 			@NonNull HttpServletResponse response,
 			@NonNull FilterChain filterChain
-			)throws ServletException, IOException {
-		// TODO Auto-generated method stub
+			) throws ServletException, IOException {
 		final String authHeader = request.getHeader("Authorization");
 		final String jwt;
-		//choose the unique one , email or username or ......
-		final String useremail;
-		//check the jwt token
-		if(authHeader == null || !authHeader.startsWith("Bearer ")) {
+		final String userEmail;
+
+		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
 			filterChain.doFilter(request, response);
 			return;
 		}
-		//the jwt begin after "bearer "
+
 		jwt = authHeader.substring(7);
-		// todo extract the userEmail from the jwt token;
-		useremail = jwtService.extractUserEmail(jwt);
-		//SecurityContextHolder.getContext().getAuthentication() == null : the user is not connected
-		if(useremail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-			
-			UserDetails userDetails = this.userDetailsService.loadUserByUsername(useremail);
-			if(jwtService.isTokenValid(jwt, userDetails)) {
+		userEmail = jwtService.extractUserEmail(jwt);
+
+		if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+			UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+
+			if (jwtService.isTokenValid(jwt, userDetails)) {
 				UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
 						userDetails,
-						//the authorities is null
 						null,
 						userDetails.getAuthorities()
-						);
-				    authToken.setDetails(
-				    		new WebAuthenticationDetailsSource().buildDetails(request)
-				    		);
-				    SecurityContextHolder.getContext().setAuthentication(authToken);
-				    
+				);
+				authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+				SecurityContextHolder.getContext().setAuthentication(authToken);
 			}
 		}
 		filterChain.doFilter(request, response);
-		
 	}
-
 }
